@@ -33,7 +33,7 @@ const translations = {
   },
   en: {
     step1_title: "Trip details",
-    step2_title: "Your contact",
+    step2_title: "Your informations",
     step3_title: "Booking summary",
     one_way: "One-way",
     round_trip: "Round-trip",

@@ -22,6 +22,10 @@ const BookingFormApp = () => {
   // *** Excursion ***
   const [selectedExcursion, setSelectedExcursion] = useState("paris_4h");
 
+  // BookingFormApp.jsx
+  const [hotelOther, setHotelOther] = useState("");
+
+
   const [selectedHotel, setSelectedHotel] = useState(null);
   const [departureDate, setDepartureDate] = useState(new Date());
   const [returnDate, setReturnDate] = useState(null);
@@ -42,8 +46,10 @@ const BookingFormApp = () => {
   const [mailStatus, setMailStatus] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
 
+  // Add states for addresses and phone
   const [departureAddress, setDepartureAddress] = useState("");
   const [arrivalAddress, setArrivalAddress] = useState("");
+  const [phoneCode, setPhoneCode] = useState("+33"); // Default to France
 
   // === données auxiliaires ===
   const hotelOptions = [
@@ -114,16 +120,39 @@ const BookingFormApp = () => {
 
   // === calcul prix VTC classique ===
   useEffect(() => {
-    if (tripType === "excursion") return; // laissé à l’effet Excursion
-    if (departure && arrival && departure !== arrival) {
-      const baseKey = `${departure.toLowerCase()}-${arrival.toLowerCase()}`;
-      const fullKey = tripType === "round-trip" ? `${baseKey}-${departure.toLowerCase()}` : baseKey;
-      const tarifsData = tarifsVtc[tripType];
-      if (tarifsData?.[fullKey]) {
-        const basePrice = tarifsData[fullKey][passengers - 1];
-        const extra = selectedVehicle === "van_standard" && passengers <= 4 ? 5 : 0;
-        setPrice(basePrice + extra);
-      } else {
+    if (tripType === "excursion") return;
+    
+    if (departure && arrival) {
+      try {
+        let key;
+        // Cas spécial pour Paris-Paris
+        if (departure === "paris" && arrival === "paris") {
+          key = tripType === "round-trip" ? "paris-paris-paris" : "paris-paris";
+        } else {
+          // Autres destinations
+          const baseKey = `${departure.toLowerCase()}-${arrival.toLowerCase()}`;
+          key = tripType === "round-trip" ? `${baseKey}-${departure.toLowerCase()}` : baseKey;
+        }
+
+        const tarifsData = tarifsVtc[tripType];
+        if (tarifsData?.[key]) {
+          const basePrice = tarifsData[key][passengers - 1];
+          const extra = selectedVehicle === "van_standard" && passengers <= 4 ? 5 : 0;
+          setPrice(basePrice + extra);
+          
+          // Debug
+          console.log({
+            key,
+            basePrice,
+            passengers,
+            finalPrice: basePrice + extra
+          });
+        } else {
+          setPrice(null);
+          console.log('Tarif non trouvé pour la clé:', key);
+        }
+      } catch (error) {
+        console.error("Erreur calcul prix:", error);
         setPrice(null);
       }
     } else {
@@ -202,14 +231,25 @@ const BookingFormApp = () => {
         vehicle: selectedVehicle,
         price,
         selectedHotel,
+        selectedExcursion: tripType === "excursion" ? selectedExcursion : "",
+
+        // hotelOther: include free text if user chose "Others" for Disney hotel
+        hotelOther,
 
         // utile côté serveur
         lang: document.documentElement.lang?.slice(0, 2).toLowerCase() || "en",
         captchaToken,
+        phoneCode,
+        departureAddress: tripType === "excursion" ? departureAddress : (departure === "paris" ? departureAddress : ""),
+        arrivalAddress: arrival === "paris" ? arrivalAddress : "",
       };
 
-      // PROD : bon chemin (pas /api/)
-      const res = await fetch("/booking-taxi/send-mail.php", {
+      // PROD : utiliser le bon endpoint selon le type de trajet
+      const endpoint = tripType === "excursion" 
+        ? "/booking-taxi/send-mail-excursion.php" 
+        : "/booking-taxi/send-mail.php";
+      
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -267,6 +307,9 @@ const BookingFormApp = () => {
           setDepartureAddress={setDepartureAddress}
           arrivalAddress={arrivalAddress}
           setArrivalAddress={setArrivalAddress}
+          // pass hotelOther and its setter so the child can manage the free text for Disney "Others"
+          hotelOther={hotelOther}
+          setHotelOther={setHotelOther}
         />
       )}
 
@@ -281,6 +324,8 @@ const BookingFormApp = () => {
           prevStep={prevStep}
           nextStep={nextStep}
           captchaToken={captchaToken} setCaptchaToken={setCaptchaToken}
+          phoneCode={phoneCode}
+          setPhoneCode={setPhoneCode}
         />
       )}
 
@@ -310,6 +355,11 @@ const BookingFormApp = () => {
           setMailStatus={setMailStatus}
           handleConfirm={handleConfirm}
           embedded   // 👈 ajoute ce prop
+          // pass the free text for Disney "Others" to the recap
+          hotelOther={hotelOther}
+          phoneCode={phoneCode}
+          departureAddress={departureAddress}
+          arrivalAddress={arrivalAddress}
         />
       )}
 

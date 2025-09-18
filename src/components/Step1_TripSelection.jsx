@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import { destinations } from "../data/destinations";
@@ -12,6 +12,8 @@ export default function Step1_TripSelection({
   selectedHotel, setSelectedHotel,
   departureDate, setDepartureDate,
   returnDate, setReturnDate,
+  hotelOther,
+  setHotelOther,
   price,
   hotelOptions,
   departureAddress, setDepartureAddress,
@@ -30,16 +32,50 @@ export default function Step1_TripSelection({
   const isRoundTrip = tripType === "round-trip";
   const isDisney = departure === "disney" || arrival === "disney";
 
+  // When the user selects the "Others" option for Disney hotels, we want
+  // to keep a local copy of the free-text input. Directly using the
+  // `hotelOther` prop can lead to a stale value during typing due to
+  // React state updates being asynchronous. By storing the value locally
+  // and syncing it with the parent via `setHotelOther`, we ensure the
+  // input is responsive and the `canContinue` condition updates
+  // immediately.
+  const [internalHotelOther, setInternalHotelOther] = useState(hotelOther || "");
+
+  // Keep our internal state in sync when the parent changes. This
+  // addresses cases where the parent resets `hotelOther` when another
+  // hotel is selected.
+  useEffect(() => {
+    setInternalHotelOther(hotelOther || "");
+  }, [hotelOther]);
+
   // Options villes
   const departureOptions = [
-    { label: "France", options: destinations.filter(d => d.country === "France" && d.value !== arrival) },
-    { label: "Belgique", options: destinations.filter(d => d.country === "Belgique" && d.value !== arrival) },
-    { label: "Pays-Bas", options: destinations.filter(d => d.country === "Pays-Bas" && d.value !== arrival) },
+    { 
+      label: "France", 
+      options: destinations.filter(d => d.country === "France") // Suppression de && d.value !== arrival
+    },
+    { 
+      label: "Belgique", 
+      options: destinations.filter(d => d.country === "Belgique") 
+    },
+    { 
+      label: "Pays-Bas", 
+      options: destinations.filter(d => d.country === "Pays-Bas") 
+    }
   ];
   const arrivalOptions = [
-    { label: "France", options: destinations.filter(d => d.country === "France" && d.value !== departure) },
-    { label: "Belgique", options: destinations.filter(d => d.country === "Belgique" && d.value !== departure) },
-    { label: "Pays-Bas", options: destinations.filter(d => d.country === "Pays-Bas" && d.value !== departure) },
+    { 
+      label: "France", 
+      options: destinations.filter(d => d.country === "France") // Suppression de && d.value !== departure
+    },
+    { 
+      label: "Belgique", 
+      options: destinations.filter(d => d.country === "Belgique") 
+    },
+    { 
+      label: "Pays-Bas", 
+      options: destinations.filter(d => d.country === "Pays-Bas") 
+    }
   ];
 
   // Excursions
@@ -60,7 +96,12 @@ export default function Step1_TripSelection({
   const maxChildSeats = Math.max(0, passengers - 1);
   const canContinue =
     price != null &&
-    (tripType === "excursion" ? !!selectedExcursion : (!isDisney || !!selectedHotel));
+    (tripType === "excursion"
+      ? !!selectedExcursion
+      : (!isDisney ||
+        (selectedHotel &&
+          (selectedHotel.value !== 'others' || (internalHotelOther && internalHotelOther.trim() !== ""))
+        )));
 
   // Styles react-select
   const selectStyles = {
@@ -139,6 +180,20 @@ export default function Step1_TripSelection({
                   dateFormat="dd/MM/yyyy HH:mm"
                   minDate={new Date()}
                   className="w-full border rounded px-3 py-2"
+                  popperModifiers={[
+                    {
+                      name: "preventOverflow",
+                      options: {
+                        rootBoundary: "viewport",
+                        tether: false,
+                        altAxis: true
+                      }
+                    }
+                  ]}
+                  popperPlacement="bottom-start"
+                  popperProps={{
+                    positionFixed: true
+                  }}
                 />
               </div>
 
@@ -151,6 +206,19 @@ export default function Step1_TripSelection({
                   value={excursionOptions.find(x => x.value === selectedExcursion) || null}
                   onChange={(opt) => setSelectedExcursion(opt?.value || null)}
                   placeholder={t.selectExcursion || "Choisir une excursion…"}
+                />
+              </div>
+
+              {/* Ajout du champ d'adresse de prise en charge */}
+              <div className="bg-[#F0FFF4] p-4 rounded-xl mt-4">
+                <label className="block text-sm font-semibold mb-1">📍 {t.pickup_address || "Pick-up Address"}</label>
+                <input
+                  type="text"
+                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                  value={departureAddress}
+                  onChange={(e) => setDepartureAddress(e.target.value)}
+                  placeholder={t.address_placeholder || "Enter your pick-up address"}
+                  required
                 />
               </div>
 
@@ -188,6 +256,8 @@ export default function Step1_TripSelection({
                   </div>
                 </div>
               </div>
+
+              
             </>
           ) : (
             <>
@@ -202,6 +272,20 @@ export default function Step1_TripSelection({
                     dateFormat="dd/MM/yyyy HH:mm"
                     minDate={new Date()}
                     className="w-full border rounded px-3 py-2"
+                    popperModifiers={[
+                      {
+                        name: "preventOverflow",
+                        options: {
+                          rootBoundary: "viewport",
+                          tether: false,
+                          altAxis: true
+                        }
+                      }
+                    ]}
+                    popperPlacement="bottom-start"
+                    popperProps={{
+                      positionFixed: true
+                    }}
                   />
                 </div>
                 {isRoundTrip && (
@@ -214,6 +298,20 @@ export default function Step1_TripSelection({
                       dateFormat="dd/MM/yyyy HH:mm"
                       minDate={departureDate || new Date()}
                       className="w-full border rounded px-3 py-2"
+                      popperModifiers={[
+                        {
+                          name: "preventOverflow",
+                          options: {
+                            rootBoundary: "viewport",
+                            tether: false,
+                            altAxis: true
+                          }
+                        }
+                      ]}
+                      popperPlacement="bottom-start"
+                      popperProps={{
+                        positionFixed: true
+                      }}
                     />
                   </div>
                 )}
@@ -231,14 +329,16 @@ export default function Step1_TripSelection({
                 />
               </div>
               {departure === "paris" && (
-                <input
-                  type="text"
-                  className="w-full border rounded px-3 py-2 text-sm"
-                  value={departureAddress}
-                  onChange={(e) => setDepartureAddress(e.target.value)}
-                  placeholder={t.address_placeholder || "Indiquez votre adresse"}
-                  required
-                />
+                <div className="mt-2 bg-[#F0FFF4] p-4 rounded-xl">
+                  <input
+                    type="text"
+                    className="w-full border rounded-lg px-3 py-2 text-sm"
+                    value={departureAddress}
+                    onChange={(e) => setDepartureAddress(e.target.value)}
+                    placeholder={t.address_placeholder || "Adresse de départ"}
+                    required
+                  />
+                </div>
               )}
 
               {/* Arrivée */}
@@ -253,14 +353,16 @@ export default function Step1_TripSelection({
                 />
               </div>
               {arrival === "paris" && (
-                <input
-                  type="text"
-                  className="w-full border rounded px-3 py-2 text-sm"
-                  value={arrivalAddress}
-                  onChange={(e) => setArrivalAddress(e.target.value)}
-                  placeholder={t.address_placeholder || "Indiquez votre adresse"}
-                  required
-                />
+                <div className="mt-2 bg-[#F0FFF4] p-4 rounded-xl">
+                  <input
+                    type="text"
+                    className="w-full border rounded-lg px-3 py-2 text-sm"
+                    value={arrivalAddress}
+                    onChange={(e) => setArrivalAddress(e.target.value)}
+                    placeholder={t.address_placeholder || "Adresse d'arrivée"}
+                    required
+                  />
+                </div>
               )}
 
               {/* Hôtel Disney (si Disney) */}
@@ -271,15 +373,48 @@ export default function Step1_TripSelection({
                     {...selectCommonProps}
                     options={hotelOptions}
                     value={selectedHotel}
-                    onChange={setSelectedHotel}
+                    onChange={(opt) => {
+                      setSelectedHotel(opt);
+                      // reset free text if another hotel is selected
+                      if (opt?.value !== 'others') {
+                        // Clear both our local state and the parent state
+                        if (typeof setHotelOther === 'function') setHotelOther("");
+                        setInternalHotelOther("");
+                      }
+                    }}
                     isClearable={false}
                     placeholder={t.hotelPlaceholder || "Sélectionner un hôtel…"}
                   />
                   {!selectedHotel && (
                     <p className="text-xs text-red-600 mt-1">Ce champ est obligatoire.</p>
                   )}
+                  {/* Input free text when Others selected */}
+                  {selectedHotel?.value === 'others' && (
+                    <>
+                      <input
+                        type="text"
+                        className="w-full border rounded px-3 py-2 text-sm mt-2"
+                        value={internalHotelOther}
+                        onChange={(e) => {
+                          const val = e.target.value.slice(0, 50);
+                          setInternalHotelOther(val);
+                          if (typeof setHotelOther === 'function') {
+                            setHotelOther(val);
+                          }
+                        }}
+                        maxLength={50}
+                        placeholder={t.otherHotelPlaceholder || "Indiquez l'emplacement (max 50 caractères)"}
+                        required
+                      />
+                      {/* Show an error if free text is empty */}
+                      {(!internalHotelOther || !internalHotelOther.trim()) && (
+                        <p className="text-xs text-red-600 mt-1">{t.otherHotelRequired || "Veuillez indiquer l'emplacement (50 caractères max)."}</p>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
+
 
               {/* Compteurs */}
               <div className="pt-1">
@@ -319,8 +454,7 @@ export default function Step1_TripSelection({
           )}
 
           {/* ====== Vehicle (Van Vito – selected by default) ====== */}
-          <div className="pt-1">
-            <label className="block text-sm font-semibold mb-2">🚘 Vehicle</label>
+          <div className="pt-1 mb-6"> {/* Ajout de mb-6 pour créer l'espace */}
             <div role="option" aria-selected="true" className="vehicle-card selected">
               <div className="vehicle-photo">
                 <img
@@ -344,23 +478,23 @@ export default function Step1_TripSelection({
         </div>
 
         {/* FOOTER */}
-        <div className="mt-4 flex items-center gap-3">
-          <div className="flex-1">
-            <div className="w-full rounded-xl border border-emerald-200 bg-emerald-50/70 px-4 py-3">
+        <div className="mt-12"> {/* Garde la marge supérieure */}
+          <div className="price-next-container">
+            <div className="estimate-price-box">
               <div className="text-sm text-emerald-700/90 font-medium">{t.estimatedPrice || "Prix estimé"}</div>
               <div className="text-2xl font-extrabold text-emerald-700">
                 {price != null ? `${price} €` : "--"}
               </div>
             </div>
+            <button
+              type="button"
+              onClick={() => { if (canContinue) nextStep(); }}
+              className="btn-next"
+              disabled={!canContinue}
+            >
+              {t.next || "Suivant"}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => { if (canContinue) nextStep(); }}
-            className="h-12 px-6 rounded-xl bg-blue-600 text-white font-semibold shadow-lg hover:bg-blue-700 active:translate-y-[1px] transition disabled:opacity-60"
-            disabled={!canContinue}
-          >
-            {t.next || "Suivant"}
-          </button>
         </div>
       </div>
     </div>

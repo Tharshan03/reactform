@@ -5,24 +5,45 @@
   --text:#0f172a;
   --border:#e5e7eb;
   --muted:#f3f4f6;
+  --color-primary: #4460F1;
+  --color-text: #374151;
 }
 
 body{
   margin:0;
   padding:0;
-  background:url('/images/background.jpg') no-repeat center/cover fixed;
+  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), 
+              url('public/images/background.jpg'),
+              linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  color: var(--color-text);
+  min-height: 100vh;
 }
 
 /* ====== Logo ====== */
-.logo-container{ text-align:center; padding:20px 0; }
-.logo{ max-width:120px; height:auto; }
+.logo-container{ 
+  text-align:center; 
+  padding:20px 0; 
+  position: relative;
+  z-index: 10;
+}
+.logo{ 
+  max-width:120px; 
+  height:auto; 
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
 
 /* ====== Carte générique (Step1/2) ====== */
 .bg-white.rounded-xl.shadow-md{
   max-width:420px; margin-inline:auto; padding:18px;
-  background:#fff; border:1px solid var(--border); border-radius:16px;
-  box-shadow:0 10px 30px rgba(2,6,23,.08);
+  background:rgba(255, 255, 255, 0.95); 
+  backdrop-filter: blur(10px);
+  border:1px solid var(--border); border-radius:16px;
+  box-shadow:0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 /* ====== Titres ====== */
@@ -156,7 +177,7 @@ textarea{ width:100%; min-height:96px; padding:8px 10px; border:1px solid var(--
 }
 #padpt-booking .vehicle-photo{
   width:140px; height:90px; flex:0 0 140px;
-  border-radius:10px; overflow:hidden; border:1px solid #e5e7eb;
+  border-radius:10px; overflow:hidden; border:1px solid #e7eaf0;
 }
 #padpt-booking .vehicle-photo img{
   width:100%; height:100%; object-fit:cover; display:block;
@@ -166,4 +187,456 @@ textarea{ width:100%; min-height:96px; padding:8px 10px; border:1px solid var(--
   margin-top:4px; padding:2px 8px; border-radius:9999px;
   font-size:12px; font-weight:600;
   color:#2563eb; border:1px solid #bfdbfe; background:transparent;
+}
+
+/* Formulaire étape 2 : hauteur minimale et scroll interne */
+#padpt-booking .booking-form-step2 {
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Zone des champs : doit pouvoir scroller si le contenu dépasse */
+#padpt-booking .booking-form-step2 .fields-container {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.25rem; /* petite marge pour la scrollbar */
+}
+
+/* Contrôle de la hauteur et du redimensionnement du textarea */
+#padpt-booking .booking-form-step2 textarea {
+  resize: none;
+  height: 6rem; /* ~96 px (équivalent à rows=3) */
+}
+
+/* Boutons Back / Next : toujours espacés et alignés en bas */
+#padpt-booking .booking-form-step2 .buttons-container {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem; /* espace horizontal entre les deux boutons */
+}
+
+/* ====== Phone input group ====== */
+#padpt-booking .phone-group {
+  width: 100%;
+  position: relative;
+}
+
+#padpt-booking .phone-select {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 40px;
+  font-size: 16px;
+  border: none;
+  background: transparent;
+  z-index: 2;
+  padding-right: 8px;
+  cursor: pointer;
+  min-width: 70px;
+}
+
+#padpt-booking .phone-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px 0 80px;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 16px;
+  color: #374151;
+}
+
+#padpt-booking .phone-input::placeholder {
+  color: #9CA3AF;
+  opacity: 0.8;
+  transform: translateX(4px); /* Décale légèrement le placeholder */
+}
+
+#padpt-booking .phone-input:focus {
+  outline: none;
+  border-color: #4460F1;
+  box-shadow: 0 0 0 1px #4460F1;
+}
+
+/* ====== Phone input styling ====== */
+.field-phone select {
+  font-size: 16px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236B7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+
+.field-phone input[type="tel"]:focus,
+.field-phone select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+/* ====== Step2 Form Fields Colors ====== */
+#padpt-booking .field-fullname {
+  background: #F0F7FF;  /* Bleu très clair */
+  border: 1px solid #E0EDFF;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+#padpt-booking .field-email {
+  background: #FFF7ED;  /* Orange très clair */
+  border: 1px solid #FFE4CC;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+#padpt-booking .field-phone {
+  background: #F0FFF4;  /* Vert très clair */
+  border: 1px solid #DCFCE7;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+#padpt-booking .field-flight {
+  background: #FDF4FF;  /* Rose très clair */
+  border: 1px solid #FAE8FF;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+#padpt-booking .field-comment {
+  background: #F5F3FF;  /* Violet très clair */
+  border: 1px solid #EDE9FE;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+/* ====== Step2 Buttons ====== */
+#padpt-booking .btn-back {
+  height: 40px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px; /* Remettre l'arrondi complet */
+  color: #374151;
+  font-weight: 600;
+  transition: all 0.2s;
+  flex: 1;
+  margin-right: 8px; /* Ajouter de l'espace à droite */
+}
+
+#padpt-booking .btn-back:hover {
+  background: #f3f4f6;
+}
+
+#padpt-booking .btn-next {
+  height: 40px;
+  background: #4460F1;
+  border: none;
+  border-radius: 8px; /* Remettre l'arrondi complet */
+  color: white;
+  font-weight: 600;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(68, 96, 241, 0.2);
+  flex: 1;
+  margin-left: 8px; /* Ajouter de l'espace à gauche */
+}
+
+#padpt-booking .btn-next:hover {
+  background: #3651ED;
+  box-shadow: 0 4px 6px rgba(68, 96, 241, 0.25);
+}
+
+#padpt-booking .btn-next:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ====== Scrollbar Styles ====== */
+.max-h-[80vh] {
+  scrollbar-width: thin;
+  scrollbar-color: #4460F1 #f0f0f0;
+}
+
+.max-h-[80vh]::-webkit-scrollbar {
+  width: 6px;
+}
+
+.max-h-[80vh]::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+.max-h-[80vh]::-webkit-scrollbar-thumb {
+  background-color: #4460F1;
+  border-radius: 3px;
+}
+
+/* ====== Common Input Styles for Step 1 & 2 ====== */
+#padpt-booking input[type="text"],
+#padpt-booking input[type="email"],
+#padpt-booking input[type="tel"],
+#padpt-booking textarea,
+#padpt-booking .react-datepicker__input-container input {
+  width: 100%;
+  height: 34px;
+  padding: 0 12px;
+  background-color: #F0FFF4; /* Fond vert clair */
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  font-size: 16.8px;
+  transition: border-color 0.2s;
+}
+
+/* Style pour le Select de react-select */
+#padpt-booking .rs__control {
+  background-color: #F0FFF4 !important;
+  border-color: #E2E8F0 !important;
+  min-height: 34px;
+  border-radius: 10px;
+}
+
+#padpt-booking .rs__control:hover {
+  border-color: #CBD5E1 !important; 
+}
+
+#padpt-booking .rs__control--is-focused {
+  border-color: #4460F1 !important;
+  box-shadow: 0 0 0 1px #4460F1 !important;
+}
+
+/* Style pour le DatePicker */
+#padpt-booking .react-datepicker-wrapper {
+  width: 100%;
+}
+
+#padpt-booking .react-datepicker__input-container input {
+  width: calc(100% - 2px); /* Ajustement pour éviter le débordement */
+  height: 34px;
+  padding: 0 10px;
+  background-color: #F0FFF4;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+}
+
+/* ====== Select Dropdown Alignment Fix ====== */
+#padpt-booking .rs__control {
+  min-height: 34px;
+  height: 34px;
+  border-color: #E2E8F0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+}
+
+#padpt-booking .rs__value-container {
+  padding: 0;
+  margin: 0;
+  height: 34px;
+  display: flex;
+  align-items: center;
+}
+
+#padpt-booking .rs__indicators {
+  height: 34px;
+  display: flex;
+  align-items: center;
+}
+
+/* ====== Common container padding ====== */
+#padpt-booking .field-date,
+#padpt-booking .field-select {
+  padding: 12px;
+  background-color: #F0FFF4;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+/* ====== Date Picker Safari/iOS Fix ====== */
+.react-datepicker-wrapper,
+.react-datepicker__input-container {
+  display: block;
+  width: 100%;
+}
+
+.react-datepicker__input-container input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  background-color: #F0FFF4;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+}
+
+/* Fix for iOS zoom on focus */
+@supports (-webkit-touch-callout: none) {
+  .react-datepicker__input-container input {
+    font-size: 16px !important;
+  }
+}
+
+/* Fix for Safari date picker positioning */
+.react-datepicker-popper {
+  z-index: 999 !important;
+}
+
+.react-datepicker-popper[data-placement^="bottom"] {
+  padding-top: 0;
+}
+
+.react-datepicker {
+  font-family: inherit;
+  background-color: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* ====== Label width & size adjustment ====== */
+.block.text-sm.font-semibold.mb-1 {
+  display: inline-block;
+  width: 90%; /* Réduction de 10% */
+  max-width: 270px; /* 300px - 10% */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ====== Input fields width adjustment ====== */
+#padpt-booking input[type="text"],
+#padpt-booking input[type="email"],
+#padpt-booking input[type="tel"],
+#padpt-booking textarea,
+#padpt-booking .react-datepicker__input-container input,
+#padpt-booking .rs__control {
+  width: 90%;
+  max-width: 270px; /* 300px - 10% */
+}
+
+/* ====== Select width adjustment ====== */
+#padpt-booking .rs__container {
+  width: 90%;
+  max-width: 270px;
+}
+
+/* ====== Vehicle and Price Container ====== */
+#padpt-booking .vehicle-container {
+  margin-bottom: 36px;  /* Augmentation significative de la marge */
+  border-bottom: 1px solid #E2E8F0;  /* Ligne de séparation */
+  padding-bottom: 24px;  /* Padding en bas */
+}
+
+/* ====== Price and Next button wrapper ====== */
+#padpt-booking .price-next-container {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Espace entre le prix et le bouton */
+  margin-top: 24px;
+}
+
+/* ====== Estimate Price Box ====== */
+#padpt-booking .estimate-price-box {
+  flex: 1;
+  height: 70px;
+  padding: 12px 16px;
+  background: rgba(240, 255, 244, 0.7);
+  border: 1px solid #BBF7D0;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ====== Next Button ====== */
+#padpt-booking .btn-next {
+  min-width: 110px;
+  height: 70px;
+  padding: 0 24px;
+  border-radius: 12px;
+  background: #4460F1;
+  color: white;
+  font-weight: 600;
+  border: none;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(68, 96, 241, 0.2);
+}
+
+#padpt-booking .btn-next:hover {
+  background: #3651ED;
+  box-shadow: 0 4px 6px rgba(68, 96, 241, 0.25);
+}
+
+#padpt-booking .btn-next:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ====== Footer container ====== */
+.flex.items-center.gap-3 {
+  display: flex;
+  align-items: stretch; /* Pour que les deux éléments aient la même hauteur */
+}
+
+/* ====== Phone Field Styling ====== */
+#padpt-booking .field-phone {
+  position: relative;
+  width: 100%;
+  max-width: 270px;
+}
+
+#padpt-booking .field-phone .phone-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+#padpt-booking .field-phone select {
+  width: 100px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  background-color: white;
+  font-size: 16px;
+  color: #374151;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236B7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+#padpt-booking .field-phone input[type="tel"] {
+  flex: 1;
+  width: calc(100% - 108px);
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  background-color: white;
+  font-size: 16px;
+  color: #374151;
+}
+
+#padpt-booking .field-phone select:focus,
+#padpt-booking .field-phone input[type="tel"]:focus {
+  outline: none;
+  border-color: #4460F1;
+  box-shadow: 0 0 0 1px #4460F1;
 }
