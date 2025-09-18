@@ -41,14 +41,18 @@ $flightNumber = htmlspecialchars($data['flightNumber'] ?? "-", ENT_QUOTES, 'UTF-
 $tripType     = !empty($data['tripType']) && $data['tripType'] === "round-trip" ? "Round Trip" : "One Way";
 $price        = number_format((float)($data['price'] ?? 0), 2, '.', '');
 
-// Hotel Disney info
+// Hotel Disney info - Only show if pickup or drop-off is Disney
 $selectedHotel = $data['selectedHotel'] ?? null;
 $hotelOther = htmlspecialchars($data['hotelOther'] ?? '', ENT_QUOTES, 'UTF-8');
 $hotelInfo = '';
-if ($selectedHotel && is_array($selectedHotel) && !empty($selectedHotel['label'])) {
-  $hotelInfo = htmlspecialchars($selectedHotel['label'], ENT_QUOTES, 'UTF-8');
-} elseif ($hotelOther) {
-  $hotelInfo = $hotelOther;
+$isDisneyTrip = ($departure === 'disney' || $arrival === 'disney');
+
+if ($isDisneyTrip) {
+  if ($selectedHotel && is_array($selectedHotel) && !empty($selectedHotel['label'])) {
+    $hotelInfo = htmlspecialchars($selectedHotel['label'], ENT_QUOTES, 'UTF-8');
+  } elseif ($hotelOther) {
+    $hotelInfo = $hotelOther;
+  }
 }
 
 // ► Parsing de date : fallback si format différent

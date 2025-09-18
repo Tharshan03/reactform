@@ -139,14 +139,18 @@ $price       = number_format($priceNum, 2, '.', '');
 $departureAddress = htmlspecialchars(trim((string)($data['departureAddress'] ?? '')), ENT_QUOTES, 'UTF-8');
 $arrivalAddress = htmlspecialchars(trim((string)($data['arrivalAddress'] ?? '')), ENT_QUOTES, 'UTF-8');
 
-// Hotel Disney info
+// Hotel Disney info - Only show if pickup or drop-off is Disney
 $selectedHotel = $data['selectedHotel'] ?? null;
 $hotelOther = htmlspecialchars(trim((string)($data['hotelOther'] ?? '')), ENT_QUOTES, 'UTF-8');
 $hotelInfo = '';
-if ($selectedHotel && is_array($selectedHotel) && !empty($selectedHotel['label'])) {
-  $hotelInfo = htmlspecialchars($selectedHotel['label'], ENT_QUOTES, 'UTF-8');
-} elseif ($hotelOther) {
-  $hotelInfo = $hotelOther;
+$isDisneyTrip = ($departure === 'disney' || $arrival === 'disney');
+
+if ($isDisneyTrip) {
+  if ($selectedHotel && is_array($selectedHotel) && !empty($selectedHotel['label'])) {
+    $hotelInfo = htmlspecialchars($selectedHotel['label'], ENT_QUOTES, 'UTF-8');
+  } elseif ($hotelOther) {
+    $hotelInfo = $hotelOther;
+  }
 }
 
 $fromName     = clean_header_value($name);
